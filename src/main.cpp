@@ -1,3 +1,4 @@
+#include "cube.hpp"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -12,6 +13,7 @@ int main()
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // create a window and its opengl context
@@ -23,21 +25,38 @@ int main()
         return 1;
     }
 
-    glfwMakeContextCurrent(window); // make the window's context current
+    // make the window's context current
+    glfwMakeContextCurrent(window);
 
+    // not necessary, but caps the framerate to the monitor refresh rate
     glfwSwapInterval(1);
 
     // can only init glew once we have a valid context
     if (glewInit() != GLEW_OK)
     {
         std::cout << "error with glewInit()!" << std::endl;
-        return -1;
+        glfwTerminate();
+        return 1;
     }
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     // vertex buffer object
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);                                                                 // generate
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);                                                    // bind so we can use
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube::Vertices), cube::Vertices, GL_STATIC_DRAW); // fill with data
+
+    // vertex array object
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+    // set up vertex attributes
+    glBindBuffer(GL_ARRAY_BUFFER, vbo); // for safety
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0); // position
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // texcoord
 
     while (!glfwWindowShouldClose(window))
     {
@@ -51,6 +70,8 @@ int main()
     }
 
     // cleanup
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
     glfwTerminate();
     return 0;
 }

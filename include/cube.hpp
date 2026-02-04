@@ -52,8 +52,4 @@ constexpr unsigned int Indices[] = {
 };
 constexpr unsigned int IndexCount = 36;
 
-// helpers to get sizes
-constexpr size_t getVertexDataSize() { return sizeof(Vertices); }
-constexpr size_t getIndexDataSize() { return sizeof(Indices); }
-
 } // namespace cube
