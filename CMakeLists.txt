@@ -35,6 +35,7 @@ find_package(OpenGL REQUIRED)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/shader.cpp
     vendor/stb_image/stb_image.cpp
 )
 
