@@ -4,7 +4,10 @@ layout(location = 0) out vec4 color;
 
 in vec2 v_uv;
 
+uniform sampler2D u_texture;
+
 void main()
 {
-    color = vec4(v_uv, 0.0, 1.0);
+    vec4 tex_color = texture(u_texture, v_uv);
+    color = tex_color;
 }

@@ -1,5 +1,6 @@
 #include "cube.hpp"
 #include "shader.hpp"
+#include "stb_image/stb_image.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -73,6 +74,26 @@ int main()
 
     GLuint shaderProgram = shader::createProgram("res/shaders/cube.vert", "res/shaders/cube.frag");
 
+    // load texture
+    stbi_set_flip_vertically_on_load(1);
+    int width, height, bpp;
+    unsigned char* tempTexBuf = stbi_load("res/textures/dirt.png", &width, &height, &bpp, 4);
+
+    GLuint textureId = 0;
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tempTexBuf);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    if (tempTexBuf)
+        stbi_image_free(tempTexBuf);
+
     while (!glfwWindowShouldClose(window))
     {
         // clear the screen
@@ -84,10 +105,18 @@ int main()
         glBindVertexArray(vao);
         glUseProgram(shaderProgram);
 
+        // bind texture to slot 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+
+        // send texture slot to the shader
+        GLint texLoc = glGetUniformLocation(shaderProgram, "u_texture");
+        glUniform1i(texLoc, 0); // texture slot 0
+
         // define transformation matrices
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 view = glm::lookAt(glm::vec3(0.f, 1.7f, 1.7f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+        glm::mat4 view = glm::lookAt(glm::vec3(0.f, 1.f, 2.3f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), Width / (float)Height, 0.1f, 100.0f);
 
         glm::mat4 mvp = projection * view * model; // combine on cpu
@@ -96,6 +125,7 @@ int main()
         GLint mvpLoc = glGetUniformLocation(shaderProgram, "u_mvp");
         glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 
+        // draw call
         glDrawElements(GL_TRIANGLES, cube::IndexCount, GL_UNSIGNED_INT, nullptr);
 
         glfwSwapBuffers(window); // swap front and back buffers
@@ -103,6 +133,7 @@ int main()
     }
 
     // cleanup
+    glDeleteTextures(1, &textureId);
     glDeleteProgram(shaderProgram);
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &ebo);
