@@ -31,6 +31,6 @@ build\bin\Debug\openglworkshop1.exe
 
 All dependencies are automatically fetched with CMake FetchContent
 - GLFW 3.4
-- GLEW 2.2.0
+- GLAD 2.0.8 (OpenGL 4.1 Core)
 - GLM (header-only, included in `vendor` directory)
 - stb_image (header-only, included in `vendor` directory)

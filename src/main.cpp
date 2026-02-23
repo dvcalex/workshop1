@@ -1,6 +1,6 @@
 #include "cube.hpp"
 #include "shader.hpp"
-#include <GL/glew.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -36,10 +36,10 @@ int main()
     // not necessary, but caps the framerate to the monitor refresh rate
     glfwSwapInterval(1);
 
-    // can only init glew once we have a valid context
-    if (glewInit() != GLEW_OK)
+    // load GL functions once we have a valid context
+    if (!gladLoadGL(glfwGetProcAddress))
     {
-        std::cout << "error with glewInit()!" << std::endl;
+        std::cout << "error with gladLoadGL()!" << std::endl;
         glfwTerminate();
         return 1;
     }
