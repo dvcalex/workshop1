@@ -77,7 +77,7 @@ int main()
     // load texture
     stbi_set_flip_vertically_on_load(1);
     int width, height, bpp;
-    unsigned char* tempTexBuf = stbi_load("res/textures/dirt.png", &width, &height, &bpp, 4);
+    unsigned char* tempTexBuf = stbi_load("res/textures/brainrot.png", &width, &height, &bpp, 4);
 
     GLuint textureId = 0;
     glGenTextures(1, &textureId);
